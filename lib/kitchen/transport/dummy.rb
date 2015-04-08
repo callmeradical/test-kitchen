@@ -22,6 +22,7 @@ module Kitchen
 
   module Transport
 
+    # Dummy Class for Testing
     class Dummy < Kitchen::Transport::Base
 
       default_config :sleep, 1

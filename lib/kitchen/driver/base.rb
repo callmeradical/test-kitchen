@@ -93,7 +93,7 @@ module Kitchen
       def verify(state)
         transport.connection(state) do |conn|
           busser.sync_cmd.each do |cmd|
-            conn.execute(cmd) 
+            conn.execute(cmd)
           end
           conn.execute(busser.run_cmd)
         end

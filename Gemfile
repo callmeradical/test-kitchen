@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 gemspec
-
+gem 'busser'
 group :guard do
   gem 'guard-minitest'
   gem 'guard-cucumber', '~> 1.4'

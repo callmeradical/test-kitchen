@@ -292,7 +292,7 @@ module Kitchen
     # @param dir [String] suite directory or helper directory name
     # @return [String] command string
     # @api private
-    
+
     def remote_file(file, dir)
       local_prefix = File.join(config[:test_base_path], dir)
       case shell
