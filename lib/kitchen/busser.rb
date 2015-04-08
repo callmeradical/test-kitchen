@@ -133,7 +133,7 @@ module Kitchen
       Util.wrap_command(cmd, shell)
     end
 
-    # Returns a command string which transfers all suite test files to the
+    # Returns an array of command strings which transfers all suite test files to the
     # instance.
     #
     # If no work needs to be performed, for example if there are no tests for
@@ -143,22 +143,25 @@ module Kitchen
     #   nil if no work needs to be performed.
     def sync_cmd
       return if local_suite_files.empty?
-
-      cmd = <<-CMD.gsub(/^ {8}/, "")
-        #{busser_setup_env}
-
-        #{sudo(config[:busser_bin])} suite cleanup
-
-      CMD
-
+      cmds = []
       local_suite_files.each do |f|
+        cmd = <<-CMD.gsub(/^ {8}/, "")
+          #{busser_setup_env}
+        CMD
         cmd << stream_file(f, remote_file(f, config[:suite_name])).concat("\n")
-      end
-      helper_files.each do |f|
-        cmd << stream_file(f, remote_file(f, "helpers")).concat("\n")
+        cmd = Util.wrap_command(cmd,shell)
+        cmds << cmd
       end
 
-      Util.wrap_command(cmd, shell)
+      helper_files.each do |f|
+        cmd = <<-CMD.gsub(/^ {8}/, "")
+          #{busser_setup_env}
+        CMD
+        cmd = stream_file(f, remote_file(f, "helpers")).concat("\n")
+        cmd = Util.wrap_command(cmd,shell)
+        cmds << cmd
+      end
+      cmds
     end
 
     # Returns a command string which runs all Busser suite tests for the suite.
@@ -289,6 +292,7 @@ module Kitchen
     # @param dir [String] suite directory or helper directory name
     # @return [String] command string
     # @api private
+    
     def remote_file(file, dir)
       local_prefix = File.join(config[:test_base_path], dir)
       case shell
@@ -302,6 +306,7 @@ module Kitchen
         raise "[#{self}] Unsupported shell: #{shell}"
       end
     end
+
 
     # Returns a command string that will, once evaluated, result in the copying
     # of a local file to a remote instance.
@@ -324,7 +329,7 @@ module Kitchen
       ].join(" ")
 
       [
-        %{echo "Uploading #{remote_path} (mode=#{perms})"},
+        %{echo "Uploading to #{remote_path} (mode=#{perms})"},
         %{echo "#{encoded_file}" | #{stream_cmd}}
       ].join("\n").concat("\n")
     end

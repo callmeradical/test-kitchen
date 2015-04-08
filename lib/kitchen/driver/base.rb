@@ -92,7 +92,9 @@ module Kitchen
       # @raise [ActionFailed] if the action could not be completed
       def verify(state)
         transport.connection(state) do |conn|
-          conn.execute(busser.sync_cmd)
+          busser.sync_cmd.each do |cmd|
+            conn.execute(cmd) 
+          end
           conn.execute(busser.run_cmd)
         end
       end
